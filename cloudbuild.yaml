@@ -1,5 +1,6 @@
 steps:
-  # Build the Docker image with Vite env vars as build args
+  # Build the Docker image with public client-side config as build args
+  # GEMINI_API_KEY is NOT passed at build time — it's a secret, runtime-only
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -23,15 +24,13 @@ steps:
       - 'VITE_FIREBASE_MEASUREMENT_ID=$_VITE_FIREBASE_MEASUREMENT_ID'
       - '--build-arg'
       - 'VITE_GOOGLE_MAPS_KEY=$_VITE_GOOGLE_MAPS_KEY'
-      - '--build-arg'
-      - 'VITE_GEMINI_API_KEY=$_VITE_GEMINI_API_KEY'
       - '.'
 
   # Push image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/smartstadium']
 
-  # Deploy to Cloud Run
+  # Deploy to Cloud Run — Gemini key is set ONLY as a runtime env var
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     entrypoint: gcloud
     args:
