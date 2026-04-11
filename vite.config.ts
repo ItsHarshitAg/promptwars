@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
               try {
                 const { message, context } = JSON.parse(body);
                 
-                const apiKey = env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+                const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
                 if (!apiKey) {
                   throw new Error('Gemini API key is missing');
                 }

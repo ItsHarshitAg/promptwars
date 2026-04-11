@@ -75,8 +75,8 @@ const seedData = async () => {
   console.log(`[${new Date().toISOString()}] Seeded mocked data to Firebase.`);
 };
 
-// 30 MINUTE INTERVAL
-setInterval(seedData, 30 * 60 * 1000);
+// 2 MINUTE INTERVAL
+setInterval(seedData, 2 * 60 * 1000);
 seedData();
 
 app.post('/api/chat', async (req, res) => {
@@ -89,7 +89,7 @@ app.post('/api/chat', async (req, res) => {
     }
     message = purify.sanitize(message, { ALLOWED_TAGS: [] }).slice(0, 500);
 
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ error: 'Missing Gemini API key configuration' });
     }

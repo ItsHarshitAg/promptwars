@@ -2,6 +2,10 @@
 
 A React TypeScript Progressive Web App designed to improve the physical event experience for attendees at large-scale sporting venues.
 
+## Live Demo
+
+**https://smartstadium-1071752532433.asia-south1.run.app/**
+
 ## Features
 
 - **Real-Time Crowd Heatmap**: Monitor live zone densities powered by Firebase Realtime Database.
@@ -81,12 +85,24 @@ Tests include:
 
 ## Production Deployment (Cloud Run)
 
-1. Ensure your Google Cloud CLI is configured.
-2. Build the server image (uses the `Dockerfile`).
+The app is deployed to Google Cloud Run using Cloud Build with `cloudbuild.yaml`.
+
+### Deploy via CLI
 
 ```bash
-gcloud run deploy smartstadium --source . --port 8080 --allow-unauthenticated --region asia-south1
+gcloud builds submit --config=cloudbuild.yaml --project=promptwart \
+  --substitutions="_VITE_FIREBASE_API_KEY=...,_VITE_FIREBASE_AUTH_DOMAIN=...,_VITE_FIREBASE_DATABASE_URL=...,_VITE_FIREBASE_PROJECT_ID=...,_VITE_FIREBASE_STORAGE_BUCKET=...,_VITE_FIREBASE_MESSAGING_SENDER_ID=...,_VITE_FIREBASE_APP_ID=...,_VITE_FIREBASE_MEASUREMENT_ID=...,_VITE_GOOGLE_MAPS_KEY=...,_VITE_GEMINI_API_KEY=..."
 ```
+
+### How it works
+
+1. `cloudbuild.yaml` passes Firebase/Maps keys as Docker `--build-arg` so Vite bakes them at build time
+2. The Gemini API key is **only** set as a Cloud Run runtime env var — never baked into the frontend bundle
+3. The Docker image is pushed to GCR and deployed to Cloud Run (asia-south1)
+
+### Post-deployment
+
+- Add the Cloud Run domain to **Firebase Console → Authentication → Settings → Authorized domains**
 
 ### Docker Hardening
 
