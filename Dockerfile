@@ -13,7 +13,8 @@ WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev --legacy-peer-deps --ignore-scripts express dotenv @google/genai dompurify jsdom firebase && npm cache clean --force
+COPY --from=builder /app/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --ignore-scripts && npm cache clean --force
 COPY server.js .
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
