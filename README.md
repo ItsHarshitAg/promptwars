@@ -85,8 +85,16 @@ Tests include:
 2. Build the server image (uses the `Dockerfile`).
 
 ```bash
-gcloud run deploy smartstadium --source . --port 8080 --allow-unauthenticated
+gcloud run deploy smartstadium --source . --port 8080 --allow-unauthenticated --region asia-south1
 ```
+
+### Docker Hardening
+
+- Base image: `node:22-alpine` with `apk upgrade` to patch OS-level CVEs
+- Non-root user (`appuser`) at runtime
+- `--ignore-scripts` on npm install to prevent supply-chain attacks
+- `npm cache clean --force` to reduce image size
+- Multi-stage build — no devDependencies or source code in the final image
 
 ## Architecture
 
@@ -110,3 +118,4 @@ server.js       — Express production server (Gemini proxy + static files)
 - Gemini API calls are proxied through server middleware — the API key never reaches the browser.
 - User input is sanitised (HTML stripped, 500 char limit) before sending to the AI concierge.
 - Firebase Security Rules enforce read-only access for authenticated users.
+- Docker image runs as non-root user, uses `node:22-alpine` with OS patches applied, and `--ignore-scripts` to mitigate supply-chain attacks.
