@@ -1,6 +1,5 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
-RUN npm install -g npm@latest --ignore-scripts
 COPY package*.json ./
 RUN npm install --legacy-peer-deps --ignore-scripts
 COPY . .
