@@ -26,9 +26,13 @@ const ZONE_COORDS: Record<string, { lat: number; lng: number }> = {
 };
 
 export const MapView: React.FC = () => {
+  const getEnv = (key: string) => {
+    return (window as any).envConfig?.[key] || import.meta.env[key];
+  };
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY || ''
+    googleMapsApiKey: getEnv('VITE_GOOGLE_MAPS_KEY') || getEnv('VITE_GOOGLE_MAPS_API_KEY') || ''
   });
 
   const { heatmapData } = useCrowd();

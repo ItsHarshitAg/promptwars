@@ -17,6 +17,7 @@ export const useZoneData = () => {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     const zonesRef = ref(db, 'zones');
@@ -41,6 +42,7 @@ export const useZoneData = () => {
           setZones([]);
         }
         setError(null);
+        setLastUpdated(new Date());
         setLoading(false);
       },
       (err) => {
@@ -53,5 +55,5 @@ export const useZoneData = () => {
     return () => unsubscribe();
   }, []);
 
-  return { zones, loading, error };
+  return { zones, loading, error, lastUpdated };
 };

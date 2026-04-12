@@ -18,6 +18,20 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 8080;
 
+app.get('/config.js', (req, res) => {
+  res.type('application/javascript');
+  res.send(`window.envConfig = {
+    VITE_FIREBASE_API_KEY: "${process.env.VITE_FIREBASE_API_KEY || ''}",
+    VITE_FIREBASE_AUTH_DOMAIN: "${process.env.VITE_FIREBASE_AUTH_DOMAIN || ''}",
+    VITE_FIREBASE_PROJECT_ID: "${process.env.VITE_FIREBASE_PROJECT_ID || ''}",
+    VITE_FIREBASE_STORAGE_BUCKET: "${process.env.VITE_FIREBASE_STORAGE_BUCKET || ''}",
+    VITE_FIREBASE_MESSAGING_SENDER_ID: "${process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || ''}",
+    VITE_FIREBASE_APP_ID: "${process.env.VITE_FIREBASE_APP_ID || ''}",
+    VITE_FIREBASE_DATABASE_URL: "${process.env.VITE_FIREBASE_DATABASE_URL || ''}",
+    VITE_GOOGLE_MAPS_KEY: "${process.env.VITE_GOOGLE_MAPS_KEY || process.env.VITE_GOOGLE_MAPS_API_KEY || ''}"
+  };`);
+});
+
 // Security Setup: Rate Limit & DOMPurify on backend
 const window = new JSDOM('').window;
 const purify = DOMPurify(window);
