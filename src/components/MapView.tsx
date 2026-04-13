@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
 import { useCrowd } from '../hooks/useCrowd';
 import { getEnv } from '../utils/env';
@@ -86,14 +86,14 @@ interface MapViewProps {
   showFloorPlan?: boolean;
 }
 
-export const MapView: React.FC<MapViewProps> = ({ selectedZoneId, showFloorPlan = false }) => {
+export function MapView({ selectedZoneId, showFloorPlan = false }: MapViewProps) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: getEnv('VITE_GOOGLE_MAPS_KEY') || getEnv('VITE_GOOGLE_MAPS_API_KEY') || ''
   });
 
   const { heatmapData } = useCrowd();
-  const [activeZone, setActiveZone] = React.useState<string | null>(null);
+  const [activeZone, setActiveZone] = useState<string | null>(null);
 
   const handleMarkerClick = useCallback((zoneId: string) => {
     setActiveZone(zoneId);
@@ -194,5 +194,5 @@ export const MapView: React.FC<MapViewProps> = ({ selectedZoneId, showFloorPlan 
       </GoogleMap>
     </div>
   );
-};
+}
 

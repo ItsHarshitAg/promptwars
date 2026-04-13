@@ -71,9 +71,9 @@ export function LoginScreen() {
         </p>
 
         {/* Feature pills */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 32 }}>
+        <ul style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 32, padding: 0, listStyle: 'none' }}>
           {['📍 Live heatmap', '🤖 AI concierge', '⚡ Real-time alerts'].map(f => (
-            <span
+            <li
               key={f}
               style={{
                 fontSize: 12,
@@ -85,9 +85,9 @@ export function LoginScreen() {
               }}
             >
               {f}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
 
         {/* Divider */}
         <div style={{ width: '100%', height: '0.5px', background: 'var(--border-color)', marginBottom: 28 }} />

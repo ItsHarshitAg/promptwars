@@ -13,7 +13,7 @@ interface RawZone {
   waitMinutes?: number;
 }
 
-export const useZoneData = () => {
+export function useZoneData() {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,4 +56,4 @@ export const useZoneData = () => {
   }, []);
 
   return { zones, loading, error, lastUpdated };
-};
+}

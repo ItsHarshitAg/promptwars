@@ -9,7 +9,7 @@ import { auth } from '../firebase/config';
  * - null       → not logged in
  * - User       → authenticated
  */
-export const useAuth = (): User | null | undefined => {
+export function useAuth(): User | null | undefined {
   const [user, setUser] = useState<User | null | undefined>(undefined);
 
   useEffect(() => {
@@ -18,4 +18,4 @@ export const useAuth = (): User | null | undefined => {
   }, []);
 
   return user;
-};
+}

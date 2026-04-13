@@ -3,15 +3,15 @@ import { useZoneData } from './useZoneData';
 import { shouldTriggerAlert } from '../utils/alertTrigger';
 import type { Alert } from '../types';
 
-export const useAlerts = () => {
+export function useAlerts() {
   const { zones } = useZoneData();
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {
+    const now = Date.now();
     const newAlerts: Alert[] = [];
     zones.forEach((zone) => {
       if (shouldTriggerAlert(zone.density)) {
-        const now = Date.now();
         newAlerts.push({
           id: `alert-${zone.id}-${now}`,
           message: `${zone.name} is experiencing heavy crowds (Wait: ~${zone.waitMinutes}m).`,
@@ -25,7 +25,7 @@ export const useAlerts = () => {
     if (newAlerts.length > 0) {
       setAlerts(prev => {
         const filteredNew = newAlerts.filter(
-          na => !prev.some(pa => pa.zoneId === na.zoneId && Date.now() - pa.timestamp < 60000)
+          na => !prev.some(pa => pa.zoneId === na.zoneId && now - pa.timestamp < 60000)
         );
         return [...filteredNew, ...prev].slice(0, 5);
       });
@@ -37,4 +37,4 @@ export const useAlerts = () => {
   }, []);
 
   return { alerts, dismissAlert };
-};
+}

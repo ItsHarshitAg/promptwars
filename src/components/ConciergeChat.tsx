@@ -31,6 +31,13 @@ export function ConciergeChat() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return;
 
@@ -122,7 +129,7 @@ export function ConciergeChat() {
       )}
 
       {/* ── Chat area ── */}
-      <div
+      <ol
         role="log"
         aria-live="polite"
         aria-label="Chat messages"
@@ -136,10 +143,12 @@ export function ConciergeChat() {
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
+          listStyle: 'none',
+          margin: 0,
         }}
       >
         {messages.map((msg, idx) => (
-          <div
+          <li
             key={`${msg.timestamp}-${idx}`}
             style={{ display: 'flex', flexDirection: 'column', alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
           >
@@ -184,12 +193,12 @@ export function ConciergeChat() {
                 </div>
               </div>
             )}
-          </div>
+          </li>
         ))}
 
         {/* Typing indicator */}
         {loading && (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <li style={{ display: 'flex', gap: 8, alignItems: 'flex-start', listStyle: 'none' }}>
             <div
               aria-hidden="true"
               style={{
@@ -213,12 +222,12 @@ export function ConciergeChat() {
               <span className="typing-dot" style={{ animationDelay: '0.3s' }} aria-hidden="true" />
               <span className="sr-only">StadiumAI is typing…</span>
             </div>
-          </div>
+          </li>
         )}
 
-        {error && <p role="alert" style={{ fontSize: 13, color: 'var(--danger)', margin: 0 }}>{error}</p>}
+        {error && <li role="alert" style={{ fontSize: 13, color: 'var(--danger)', margin: 0, listStyle: 'none' }}>{error}</li>}
         <div ref={bottomRef} />
-      </div>
+      </ol>
 
       {/* ── Input area ── */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, marginTop: 12 }}>

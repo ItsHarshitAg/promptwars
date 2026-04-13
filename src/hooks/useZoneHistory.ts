@@ -9,7 +9,7 @@ interface HistoryEntry {
 
 /** Returns last 15 density readings per zone, sorted oldest→newest.
  *  Uses limitToLast(15) so Firebase only sends 15 nodes per zone. */
-export const useZoneHistory = (): Record<string, number[]> => {
+export function useZoneHistory(): Record<string, number[]> {
   const [history, setHistory] = useState<Record<string, number[]>>({});
 
   useEffect(() => {
@@ -29,4 +29,4 @@ export const useZoneHistory = (): Record<string, number[]> => {
   }, []);
 
   return history;
-};
+}

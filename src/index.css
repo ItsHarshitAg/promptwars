@@ -130,6 +130,13 @@ button:disabled {
   height: 52px;
 }
 
+.hs-nav-btn {
+  font-size: 13px;
+  padding: 6px 12px;
+  min-height: 44px;
+  min-width: 44px;
+}
+
 .hs-nav-right {
   display: flex;
   gap: 4px;
@@ -262,5 +269,16 @@ button:disabled {
   .hs-nav-btn {
     font-size: 11px !important;
     padding: 4px 5px !important;
+  }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

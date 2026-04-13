@@ -4,10 +4,10 @@
  * @param capacity - maximum occupancy
  * @returns An object containing density (0-1) and expected waitMinutes.
  */
-export const calculateQueueWaitTime = (
+export function calculateQueueWaitTime(
   current: number,
   capacity: number
-): { density: number; waitMinutes: number } => {
+): { density: number; waitMinutes: number } {
   if (capacity <= 0) return { density: 0, waitMinutes: 0 };
   
   const density = Math.max(0, Math.min(1, current / capacity));
@@ -24,4 +24,4 @@ export const calculateQueueWaitTime = (
   }
   
   return { density, waitMinutes };
-};
+}

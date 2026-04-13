@@ -9,7 +9,7 @@ function getInitial(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-export const useTheme = () => {
+export function useTheme() {
   const [theme, setTheme] = useState<Theme>(getInitial);
 
   useEffect(() => {
@@ -19,4 +19,4 @@ export const useTheme = () => {
 
   const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
   return { theme, toggle };
-};
+}

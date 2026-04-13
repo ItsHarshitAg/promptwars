@@ -7,7 +7,7 @@ export interface HeatmapZoneData extends Zone {
   color: string;
 }
 
-export const useCrowd = () => {
+export function useCrowd() {
   const { zones, loading, error, lastUpdated } = useZoneData();
 
   const heatmapData: HeatmapZoneData[] = useMemo(() => {
@@ -18,4 +18,4 @@ export const useCrowd = () => {
   }, [zones]);
 
   return { zones, heatmapData, loading, error, lastUpdated };
-};
+}

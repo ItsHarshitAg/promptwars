@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import type { Zone } from '../types';
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
   onClick?: (zoneId: string) => void;
 }
 
-export const HeatmapZone: React.FC<Props> = React.memo(({ zone, onClick }) => {
+export const HeatmapZone = memo(function HeatmapZone({ zone, onClick }: Props) {
   const handleClick = useCallback(() => {
     if (onClick) onClick(zone.id);
   }, [onClick, zone.id]);
@@ -34,4 +34,3 @@ export const HeatmapZone: React.FC<Props> = React.memo(({ zone, onClick }) => {
   );
 });
 
-HeatmapZone.displayName = 'HeatmapZone';

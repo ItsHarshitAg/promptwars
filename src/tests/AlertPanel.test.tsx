@@ -29,4 +29,11 @@ describe('AlertPanel', () => {
     const dismissButtons = screen.getAllByRole('button', { name: /dismiss alert/i });
     expect(dismissButtons).toHaveLength(2);
   });
+
+  it('has aria-live region for screen readers', () => {
+    render(<AlertPanel />);
+    const section = screen.getByRole('region', { name: /important alerts/i });
+    expect(section).toBeDefined();
+    expect(section.getAttribute('aria-live')).toBe('polite');
+  });
 });

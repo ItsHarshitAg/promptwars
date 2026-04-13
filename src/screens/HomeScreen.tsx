@@ -12,7 +12,7 @@ type RecItem = { type: 'food' | 'restroom' | 'gate'; best: Zone; worst: Zone | n
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export const HomeScreen = () => {
+export function HomeScreen() {
   const navigate = useNavigate();
   const { zones, heatmapData, loading, error, lastUpdated } = useCrowd();
   const zoneHistory = useZoneHistory();
@@ -239,5 +239,5 @@ export const HomeScreen = () => {
       </main>
     </div>
   );
-};
+}
  
