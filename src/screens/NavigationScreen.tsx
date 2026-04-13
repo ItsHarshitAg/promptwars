@@ -18,6 +18,7 @@ function statusColor(density: number): string {
 export default function NavigationScreen() {
   const { zones, loading } = useCrowd();
   const [selectedId, setSelectedId] = useState('');
+  const [showFloorPlan, setShowFloorPlan] = useState(true);
 
   const selectedZone = useMemo(
     () => zones.find(z => z.id === selectedId) ?? null,
@@ -187,16 +188,35 @@ export default function NavigationScreen() {
           <span style={{ fontSize: 13, color: selectedZone ? 'var(--text-h)' : 'var(--muted)', fontWeight: selectedZone ? 500 : 400 }}>
             {selectedZone ? selectedZone.name : 'No destination selected'}
           </span>
-          {selectedZone && (
-            <span style={{ fontSize: 13, color: 'var(--muted)' }}>
-              ~{selectedZone.waitMinutes} min wait · {selectedZone.current}/{selectedZone.capacity} capacity
-            </span>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {selectedZone && (
+              <span style={{ fontSize: 13, color: 'var(--muted)' }}>
+                ~{selectedZone.waitMinutes} min wait · {selectedZone.current}/{selectedZone.capacity} capacity
+              </span>
+            )}
+            <button
+              aria-pressed={showFloorPlan}
+              aria-label={showFloorPlan ? 'Hide floor plan overlay' : 'Show floor plan overlay'}
+              onClick={() => setShowFloorPlan(v => !v)}
+              style={{
+                padding: '4px 10px',
+                fontSize: 12,
+                borderRadius: 6,
+                border: '1px solid var(--border-color)',
+                background: showFloorPlan ? '#185FA5' : 'var(--surface)',
+                color: showFloorPlan ? '#fff' : 'var(--text)',
+                cursor: 'pointer',
+                fontWeight: 500,
+              }}
+            >
+              Floor Plan
+            </button>
+          </div>
         </div>
 
         {/* Map */}
         <div style={{ flex: 1, overflowY: 'auto', background: '#f5f5f5' }}>
-          <MapView />
+          <MapView selectedZoneId={selectedId || undefined} showFloorPlan={showFloorPlan} />
         </div>
       </div>
     </div>

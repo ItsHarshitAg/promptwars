@@ -1,6 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCrowd } from '../hooks/useCrowd';
+import { useZoneHistory } from '../hooks/useZoneHistory';
+import { useTheme } from '../hooks/useTheme';
+import { Sparkline } from '../components/Sparkline';
+import { auth } from '../firebase/config';
+import { signOut } from 'firebase/auth';
 import type { Zone } from '../types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -32,6 +37,17 @@ export const HomeScreen = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { zones, heatmapData, loading, error, lastUpdated } = useCrowd();
+  const zoneHistory = useZoneHistory();
+  const { theme, toggle: toggleTheme } = useTheme();
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch {
+      // best-effort
+    }
+  }, [navigate]);
 
   // ── Summary stats ──
   const stats = useMemo(() => {
@@ -127,7 +143,7 @@ export const HomeScreen = () => {
           <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: '#27A148', display: 'inline-block' }} />
           <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px', color: 'var(--text-h)' }}>SmartStadium</span>
         </div>
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {navItems.map(item => {
             const isActive =
               item.label === 'Dashboard' || item.label === 'Alerts'
@@ -154,6 +170,30 @@ export const HomeScreen = () => {
               </button>
             );
           })}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, padding: '4px 8px', color: 'var(--muted)', marginLeft: 4 }}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button
+            onClick={handleLogout}
+            aria-label="Log out"
+            style={{
+              fontSize: 13,
+              padding: '6px 12px',
+              borderRadius: 6,
+              border: '0.5px solid var(--border-color)',
+              cursor: 'pointer',
+              background: 'transparent',
+              color: 'var(--muted)',
+              marginLeft: 4,
+            }}
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -276,9 +316,14 @@ export const HomeScreen = () => {
                       </div>
                       <span style={{ ...pillStyle, fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 20 }}>{status}</span>
                     </div>
-                    <div style={{ height: 5, borderRadius: 99, background: 'var(--border-color)', marginBottom: 10, overflow: 'hidden' }}>
+                    <div style={{ height: 5, borderRadius: 99, background: 'var(--border-color)', marginBottom: 8, overflow: 'hidden' }}>
                       <div style={{ height: '100%', borderRadius: 99, background: barColor, width: `${Math.min(zone.density * 100, 100)}%`, transition: 'width 0.5s ease' }} />
                     </div>
+                    {zoneHistory[zone.id] && zoneHistory[zone.id].length >= 2 && (
+                      <div style={{ marginBottom: 8 }}>
+                        <Sparkline data={zoneHistory[zone.id]} color={barColor} />
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                       <span style={{ color: 'var(--muted)' }}>{zone.current} / {zone.capacity}</span>
                       <span style={{ color: waitColor, fontWeight: 500 }}>~{zone.waitMinutes} min</span>

@@ -2,8 +2,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set } from 'firebase/database';
+import { readFileSync } from 'fs';
+import { initializeApp as initAdminApp, cert } from 'firebase-admin/app';
+import { getDatabase as getAdminDatabase } from 'firebase-admin/database';
 import dotenv from 'dotenv';
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
@@ -36,23 +37,20 @@ app.get('/config.js', (req, res) => {
 const window = new JSDOM('').window;
 const purify = DOMPurify(window);
 
-// Setup Firebase Seed mock for Cloud Run
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL
-};
-
+// Admin SDK — bypasses security rules, credentials stay server-side only
 let db;
 try {
-  const firebaseApp = initializeApp(firebaseConfig);
-  db = getDatabase(firebaseApp);
+  const saPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+  const serviceAccount = saPath
+    ? JSON.parse(readFileSync(saPath, 'utf8'))
+    : JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  initAdminApp({
+    credential: cert(serviceAccount),
+    databaseURL: process.env.VITE_FIREBASE_DATABASE_URL,
+  });
+  db = getAdminDatabase();
 } catch (e) {
-  console.log("Firebase init error during seed setup:", e.message);
+  console.error('Firebase Admin init error:', e.message);
 }
 
 const zonesData = [
@@ -68,25 +66,31 @@ const zonesData = [
 
 const seedData = async () => {
   if (!db) return;
-  const zonesRef = ref(db, 'zones');
   const payload = {};
-  
+
   zonesData.forEach(zone => {
     const jitter = Math.floor(Math.random() * 21) - 10;
     zone.current = Math.max(0, Math.min(zone.capacity, zone.current + jitter));
-    
+
     let density = Math.max(0, Math.min(1, zone.current / zone.capacity));
     let waitMinutes = 0;
     if (density >= 0.9) waitMinutes = 30 + Math.floor((density - 0.9) * 100);
     else if (density >= 0.8) waitMinutes = 20 + Math.floor((density - 0.8) * 100);
     else if (density >= 0.5) waitMinutes = 10 + Math.floor((density - 0.5) * 33);
     else if (density >= 0.2) waitMinutes = 2 + Math.floor((density - 0.2) * 26);
-    
+
     payload[zone.id] = { ...zone, density, waitMinutes };
   });
-  
-  await set(zonesRef, payload);
-  console.log(`[${new Date().toISOString()}] Seeded mocked data to Firebase.`);
+
+  await db.ref('zones').set(payload);
+
+  // Write density snapshot to history
+  const ts = Date.now();
+  for (const [zoneId, zone] of Object.entries(payload)) {
+    await db.ref(`historyZones/${zoneId}`).push({ density: zone.density, ts });
+  }
+
+  console.log(`[${new Date().toISOString()}] Seeded data to Firebase via Admin SDK.`);
 };
 
 // 2 MINUTE INTERVAL
