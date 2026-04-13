@@ -1,15 +1,12 @@
 import { ConciergeChat } from '../components/ConciergeChat';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 export default function ConciergeScreen() {
   return (
-    <main style={{ padding: '16px' }}>
-      <h1>
-        <SmartToyIcon aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 8 }} />
-        AI Concierge
-      </h1>
-      <p>Ask StadiumAI anything about the venue.</p>
-      <ConciergeChat />
-    </main>
+    <div style={{ background: 'var(--bg)', minHeight: 'calc(100vh - 56px)' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 0' }}>
+        <ConciergeChat />
+      </div>
+    </div>
   );
 }
+

@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LoginScreen } from './screens/LoginScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { auth } from './firebase/config';
@@ -14,6 +14,7 @@ const ConciergeScreen = React.lazy(() => import('./screens/ConciergeScreen'));
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = useCallback(async () => {
     try {
@@ -26,6 +27,7 @@ function App() {
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+      {location.pathname !== '/' && (
       <header style={{ padding: '16px', background: '#1a1a2e', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0 }}>SmartStadium</h2>
         <nav aria-label="Main navigation">
@@ -51,6 +53,7 @@ function App() {
           </button>
         </nav>
       </header>
+      )}
       <Suspense fallback={<div aria-live="polite" role="status" style={{ padding: '16px', textAlign: 'center' }}>Loading screen...</div>}>
         <Routes>
           <Route path="/login" element={<LoginScreen />} />

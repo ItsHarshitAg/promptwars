@@ -4,6 +4,11 @@
   --text: #333;
   --text-h: #111;
   --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-alt: #F3F4F6;
+  --border-color: #E5E7EB;
+  --muted: #6B7280;
+  --critical-bg: #FCEBEB;
   --primary: #1976d2;
   --danger: #c62828;
   --success: #4caf50;
@@ -21,6 +26,11 @@
     --text: #e0e0e0;
     --text-h: #f5f5f5;
     --bg: #121212;
+    --surface: #1E1E1E;
+    --surface-alt: #2A2A2A;
+    --border-color: #3A3A3A;
+    --muted: #9CA3AF;
+    --critical-bg: rgba(192, 57, 43, 0.2);
   }
 }
 
@@ -53,4 +63,19 @@ a {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Typing indicator dots */
+@keyframes typing-blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40%           { opacity: 1;   }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: typing-blink 1.2s ease-in-out infinite;
 }
