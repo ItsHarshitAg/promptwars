@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import type { ReactNode } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
-function ThrowingChild() {
+function ThrowingChild(): ReactNode {
   throw new Error('Test error');
 }
 
