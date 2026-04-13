@@ -11,11 +11,12 @@ export const useAlerts = () => {
     const newAlerts: Alert[] = [];
     zones.forEach((zone) => {
       if (shouldTriggerAlert(zone.density)) {
+        const now = Date.now();
         newAlerts.push({
-          id: `alert-${zone.id}-${Date.now()}`,
+          id: `alert-${zone.id}-${now}`,
           message: `${zone.name} is experiencing heavy crowds (Wait: ~${zone.waitMinutes}m).`,
           zoneId: zone.id,
-          timestamp: Date.now(),
+          timestamp: now,
           read: false
         });
       }

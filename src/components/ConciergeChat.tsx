@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import type { Message } from '../types';
 import { askConcierge } from '../utils/concierge';
 import { useCrowd } from '../hooks/useCrowd';
@@ -11,7 +12,11 @@ const SUGGESTIONS = [
   "Nearest restroom with no wait?",
 ] as const;
 
-export const ConciergeChat: React.FC = () => {
+function formatMsgTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+export function ConciergeChat() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'Hi there! I am StadiumAI. How can I help you navigate the stadium today?', timestamp: Date.now() }
   ]);
@@ -47,7 +52,7 @@ export const ConciergeChat: React.FC = () => {
     }
   }, [loading, zones]);
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -55,12 +60,11 @@ export const ConciergeChat: React.FC = () => {
     }, DEBOUNCE_MS);
   }, [input, sendMessage]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   }, []);
 
   const showSuggestions = messages.length === 1 && messages[0].role === 'assistant';
-  const fmt = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div style={{ paddingBottom: 24 }}>
@@ -161,7 +165,7 @@ export const ConciergeChat: React.FC = () => {
                   }}>
                     {msg.content}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{fmt(msg.timestamp)}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{formatMsgTime(msg.timestamp)}</div>
                 </div>
               </div>
             ) : (
@@ -176,7 +180,7 @@ export const ConciergeChat: React.FC = () => {
                   {msg.content}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, textAlign: 'right' }}>
-                  {fmt(msg.timestamp)}
+                  {formatMsgTime(msg.timestamp)}
                 </div>
               </div>
             )}
@@ -271,5 +275,5 @@ export const ConciergeChat: React.FC = () => {
 
     </div>
   );
-};
+}
 

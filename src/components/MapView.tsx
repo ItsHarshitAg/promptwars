@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
 import { useCrowd } from '../hooks/useCrowd';
+import { getEnv } from '../utils/env';
 
 const containerStyle = {
   width: '100%',
@@ -86,10 +87,6 @@ interface MapViewProps {
 }
 
 export const MapView: React.FC<MapViewProps> = ({ selectedZoneId, showFloorPlan = false }) => {
-  const getEnv = (key: string) => {
-    return (window as unknown as Record<string, Record<string, string>>).envConfig?.[key] || import.meta.env[key];
-  };
-
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: getEnv('VITE_GOOGLE_MAPS_KEY') || getEnv('VITE_GOOGLE_MAPS_API_KEY') || ''

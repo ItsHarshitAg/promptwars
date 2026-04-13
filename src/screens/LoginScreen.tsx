@@ -3,7 +3,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase/config';
 import { useNavigate } from 'react-router-dom';
 
-export const LoginScreen = () => {
+export function LoginScreen() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -139,5 +139,5 @@ export const LoginScreen = () => {
       </div>
     </div>
   );
-};
+}
 

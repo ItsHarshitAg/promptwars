@@ -2,7 +2,7 @@ import { useAlerts } from '../hooks/useAlerts';
 import CloseIcon from '@mui/icons-material/Close';
 import WarningIcon from '@mui/icons-material/Warning';
 
-export const AlertPanel: React.FC = () => {
+export function AlertPanel() {
   const { alerts, dismissAlert } = useAlerts();
 
   if (alerts.length === 0) return null;
@@ -45,4 +45,4 @@ export const AlertPanel: React.FC = () => {
       </div>
     </section>
   );
-};
+}

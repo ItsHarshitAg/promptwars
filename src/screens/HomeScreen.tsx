@@ -8,6 +8,8 @@ import { AppNav } from '../components/AppNav';
 import { getZoneTypeLabel, densityStatus, alertAction } from '../utils/zoneHelpers';
 import type { Zone } from '../types';
 
+type RecItem = { type: 'food' | 'restroom' | 'gate'; best: Zone; worst: Zone | null; targetId: string };
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export const HomeScreen = () => {
@@ -40,8 +42,6 @@ export const HomeScreen = () => {
   );
 
   // ── Smart recommendations ──
-  type RecItem = { type: 'food' | 'restroom' | 'gate'; best: Zone; worst: Zone | null; targetId: string };
-
   const recommendations = useMemo((): RecItem[] => {
     if (!zones.length) return [];
     const foodZones = zones.filter(z => z.id.includes('food'));

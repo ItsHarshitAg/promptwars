@@ -1,11 +1,11 @@
+import type { ReactNode } from 'react';
+
 interface StatCardProps {
   label: string;
-  value: React.ReactNode;
-  sub: React.ReactNode;
+  value: ReactNode;
+  sub: ReactNode;
   valueColor?: string;
 }
-
-import React from 'react';
 
 export function StatCard({ label, value, sub, valueColor }: StatCardProps) {
   return (
