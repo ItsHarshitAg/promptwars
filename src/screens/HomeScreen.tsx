@@ -1,53 +1,18 @@
-import { useMemo, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCrowd } from '../hooks/useCrowd';
 import { useZoneHistory } from '../hooks/useZoneHistory';
-import { useTheme } from '../hooks/useTheme';
 import { Sparkline } from '../components/Sparkline';
-import { auth } from '../firebase/config';
-import { signOut } from 'firebase/auth';
+import { AppNav } from '../components/AppNav';
+import { getZoneTypeLabel, densityStatus, alertAction } from '../utils/zoneHelpers';
 import type { Zone } from '../types';
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function getZoneType(id: string): 'gate' | 'food' | 'restroom' | 'seating' {
-  if (id.includes('gate')) return 'gate';
-  if (id.includes('food')) return 'food';
-  if (id.includes('restroom')) return 'restroom';
-  return 'seating';
-}
-
-function getZoneTypeLabel(id: string): string {
-  const t = getZoneType(id);
-  if (t === 'gate') return 'Entry / exit';
-  if (t === 'food') return 'Food & drink';
-  if (t === 'restroom') return 'Facilities';
-  return 'Seating';
-}
-
-function densityStatus(density: number): 'Critical' | 'Busy' | 'Clear' {
-  if (density > 0.8) return 'Critical';
-  if (density >= 0.5) return 'Busy';
-  return 'Clear';
-}
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export const HomeScreen = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { zones, heatmapData, loading, error, lastUpdated } = useCrowd();
   const zoneHistory = useZoneHistory();
-  const { theme, toggle: toggleTheme } = useTheme();
-
-  const handleLogout = useCallback(async () => {
-    try {
-      await signOut(auth);
-      navigate('/login');
-    } catch {
-      // best-effort
-    }
-  }, [navigate]);
 
   // ── Summary stats ──
   const stats = useMemo(() => {
@@ -67,29 +32,11 @@ export const HomeScreen = () => {
   // ── Critical zones for alert strips ──
   const alertZones = useMemo(() => zones.filter(z => z.density > 0.8), [zones]);
 
-  // ── Contextual action per alert zone ──
-  function alertAction(zone: Zone): { label: string; targetId: string | null } {
-    const type = getZoneType(zone.id);
-    if (type === 'food') {
-      const alt = zones.filter(z => z.id.includes('food') && z.id !== zone.id);
-      if (!alt.length) return { label: 'Check another area →', targetId: null };
-      const best = alt.reduce((a, b) => (a.density < b.density ? a : b));
-      return { label: `Try ${best.name} →`, targetId: best.id };
-    }
-    if (type === 'gate') {
-      const alt = zones.filter(z => z.id.includes('gate') && z.id !== zone.id);
-      if (!alt.length) return { label: 'Check another gate →', targetId: null };
-      const best = alt.reduce((a, b) => (a.density < b.density ? a : b));
-      return { label: `Try ${best.name} instead →`, targetId: best.id };
-    }
-    if (type === 'restroom') {
-      const alt = zones.filter(z => z.id.includes('restroom') && z.id !== zone.id);
-      if (!alt.length) return { label: 'Check facilities →', targetId: null };
-      const best = alt.reduce((a, b) => (a.density < b.density ? a : b));
-      return { label: `Try ${best.name} →`, targetId: best.id };
-    }
-    return { label: 'Find alternate route →', targetId: null };
-  }
+  // ── Contextual action per alert zone — memoized list ──
+  const alertActions = useMemo(
+    () => alertZones.map(zone => ({ zone, action: alertAction(zone, zones) })),
+    [alertZones, zones]
+  );
 
   // ── Smart recommendations ──
   type RecItem = { type: 'food' | 'restroom' | 'gate'; best: Zone; worst: Zone | null; targetId: string };
@@ -116,93 +63,17 @@ export const HomeScreen = () => {
     return recs.slice(0, 3);
   }, [zones]);
 
-  const navItems = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Navigate', path: '/map' },
-    { label: 'AI Chat', path: '/chat' },
-    { label: 'Alerts', path: '/' },
-  ] as const;
-
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)', fontFamily: 'system-ui, sans-serif' }}>
 
-      {/* ── Navbar ── */}
-      <nav
-        aria-label="Primary navigation"
-        style={{
-          background: 'var(--bg)',
-          borderBottom: '0.5px solid var(--border-color)',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: 52,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: '#27A148', display: 'inline-block' }} />
-          <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px', color: 'var(--text-h)' }}>SmartStadium</span>
-        </div>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          {navItems.map(item => {
-            const isActive =
-              item.label === 'Dashboard' || item.label === 'Alerts'
-                ? location.pathname === '/'
-                : location.pathname.startsWith(item.path);
-            return (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                aria-label={`Go to ${item.label}`}
-                aria-current={isActive ? 'page' : undefined}
-                style={{
-                  fontSize: 15,
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  border: 'none',
-                  cursor: 'pointer',
-                  background: isActive ? 'var(--surface-alt)' : 'transparent',
-                  color: isActive ? 'var(--text-h)' : 'var(--muted)',
-                  fontWeight: isActive ? 600 : 400,
-                }}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-          <button
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, padding: '4px 8px', color: 'var(--muted)', marginLeft: 4 }}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-          <button
-            onClick={handleLogout}
-            aria-label="Log out"
-            style={{
-              fontSize: 13,
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: '0.5px solid var(--border-color)',
-              cursor: 'pointer',
-              background: 'transparent',
-              color: 'var(--muted)',
-              marginLeft: 4,
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+      <AppNav />
 
       {/* ── Page content ── */}
-      <main style={{ padding: '20px 24px', maxWidth: 1100, margin: '0 auto' }}>
+      <main className="hs-main">
 
         {/* ── Stat cards ── */}
         {!loading && stats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+          <div className="stat-grid">
 
             <div style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '14px 16px' }}>
               <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Busiest Zone</div>
@@ -240,21 +111,8 @@ export const HomeScreen = () => {
         {/* ── Alert strips ── */}
         {alertZones.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
-            {alertZones.map(zone => {
-              const action = alertAction(zone);
-              return (
-                <div
-                  key={zone.id}
-                  style={{
-                    background: 'var(--critical-bg)',
-                    borderLeft: '3px solid #C0392B',
-                    borderRadius: 0,
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
+            {alertActions.map(({ zone, action }) => (
+                <div key={zone.id} className="alert-strip">
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
                     <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: '#C0392B', flexShrink: 0 }} />
                     <span>
@@ -270,8 +128,7 @@ export const HomeScreen = () => {
                     {action.label}
                   </button>
                 </div>
-              );
-            })}
+            ))}
           </div>
         )}
 
@@ -290,7 +147,7 @@ export const HomeScreen = () => {
           {loading ? (
             <p aria-live="polite" role="status" style={{ fontSize: 13, color: 'var(--muted)' }}>Loading crowd data…</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <div className="zone-grid">
               {heatmapData.map(zone => {
                 const status = densityStatus(zone.density);
                 const pillStyle =
@@ -343,7 +200,7 @@ export const HomeScreen = () => {
               {recommendations.map((rec, i) => (
                 <div
                   key={i}
-                  style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  className="rec-row"
                 >
                   <span style={{ fontSize: 13, color: 'var(--text)' }}>
                     {rec.type === 'food' && (

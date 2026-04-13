@@ -11,7 +11,19 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="app-shell" style="
+        position:fixed;inset:0;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+        background:#1a1a2e;color:#fff;font-family:system-ui,sans-serif;">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" stroke="#1976d2" stroke-width="4" stroke-dasharray="90 30">
+            <animateTransform attributeName="transform" type="rotate" from="0 24 24" to="360 24 24" dur="0.9s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <span style="font-size:14px;opacity:0.7;letter-spacing:0.05em">SmartStadium</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

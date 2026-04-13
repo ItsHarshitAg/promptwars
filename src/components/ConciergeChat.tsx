@@ -126,8 +126,8 @@ export const ConciergeChat: React.FC = () => {
           background: 'var(--surface-alt)',
           borderRadius: 12,
           padding: 16,
-          minHeight: 340,
-          maxHeight: 460,
+          minHeight: 260,
+          maxHeight: 'min(460px, 50vh)',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
@@ -140,7 +140,7 @@ export const ConciergeChat: React.FC = () => {
             style={{ display: 'flex', flexDirection: 'column', alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
           >
             {msg.role === 'assistant' ? (
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', maxWidth: '72%' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', maxWidth: 'min(72%, 480px)' }}>
                 <div
                   aria-hidden="true"
                   style={{
@@ -165,7 +165,7 @@ export const ConciergeChat: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div style={{ maxWidth: '72%' }}>
+              <div style={{ maxWidth: 'min(72%, 480px)' }}>
                 <div style={{
                   background: '#185FA5',
                   color: '#ffffff',

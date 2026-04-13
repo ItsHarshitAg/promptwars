@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface SparklineProps {
   data: number[];   // array of 0–1 density values, oldest first
   color: string;
@@ -6,7 +8,7 @@ interface SparklineProps {
 }
 
 /** Tiny inline SVG polyline sparkline with trend arrow. */
-export const Sparkline = ({ data, color, width = 72, height = 20 }: SparklineProps) => {
+export const Sparkline = memo(function Sparkline({ data, color, width = 72, height = 20 }: SparklineProps) {
   if (data.length < 2) return null;
 
   const step = width / (data.length - 1);
@@ -39,4 +41,4 @@ export const Sparkline = ({ data, color, width = 72, height = 20 }: SparklinePro
       )}
     </div>
   );
-};
+});

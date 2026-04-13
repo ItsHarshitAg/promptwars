@@ -84,10 +84,20 @@ const seedData = async () => {
 
   await db.ref('zones').set(payload);
 
-  // Write density snapshot to history
+  // Write density snapshot to history; trim to last 20 entries to cap DB growth
   const ts = Date.now();
+  const HISTORY_LIMIT = 20;
   for (const [zoneId, zone] of Object.entries(payload)) {
-    await db.ref(`historyZones/${zoneId}`).push({ density: zone.density, ts });
+    const histRef = db.ref(`historyZones/${zoneId}`);
+    await histRef.push({ density: zone.density, ts });
+    const snap = await histRef.orderByKey().once('value');
+    const keys = Object.keys(snap.val() || {});
+    if (keys.length > HISTORY_LIMIT) {
+      const toDelete = keys.slice(0, keys.length - HISTORY_LIMIT);
+      const deletions = {};
+      toDelete.forEach(k => { deletions[k] = null; });
+      await histRef.update(deletions);
+    }
   }
 
   console.log(`[${new Date().toISOString()}] Seeded data to Firebase via Admin SDK.`);

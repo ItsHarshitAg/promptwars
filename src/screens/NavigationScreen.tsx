@@ -1,19 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useCrowd } from '../hooks/useCrowd';
 import { MapView } from '../components/MapView';
-
-function getZoneTypeLabel(id: string): string {
-  if (id.includes('gate')) return 'Entry / exit';
-  if (id.includes('food')) return 'Food & drink';
-  if (id.includes('restroom')) return 'Facilities';
-  return 'Seating';
-}
-
-function statusColor(density: number): string {
-  if (density > 0.8) return '#E24B4A';
-  if (density >= 0.5) return '#EF9F27';
-  return '#639922';
-}
+import { getZoneTypeLabel, statusColor } from '../utils/zoneHelpers';
 
 export default function NavigationScreen() {
   const { zones, loading } = useCrowd();
@@ -26,27 +14,9 @@ export default function NavigationScreen() {
   );
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: 'calc(100vh - 56px)',
-        background: 'var(--bg)',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="nav-screen">
       {/* ── Left sidebar ── */}
-      <aside
-        aria-label="Zone navigation sidebar"
-        style={{
-          width: 320,
-          flexShrink: 0,
-          borderRight: '0.5px solid var(--border-color)',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'var(--bg)',
-          overflow: 'hidden',
-        }}
-      >
+      <aside aria-label="Zone navigation sidebar" className="nav-sidebar">
         {/* Header */}
         <div style={{ padding: '20px 20px 0', flexShrink: 0 }}>
           <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 500, color: 'var(--text-h)' }}>
@@ -170,8 +140,7 @@ export default function NavigationScreen() {
         </div>
       </aside>
 
-      {/* ── Right map panel ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="nav-map-panel">
         {/* Top bar */}
         <div
           style={{

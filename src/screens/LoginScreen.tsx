@@ -40,7 +40,7 @@ export const LoginScreen = () => {
           background: 'var(--surface)',
           border: '0.5px solid var(--border-color)',
           borderRadius: 16,
-          padding: '40px 36px 32px',
+          padding: 'clamp(24px, 6vw, 40px) clamp(20px, 8vw, 36px) 32px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

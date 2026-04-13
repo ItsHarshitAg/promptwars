@@ -4,6 +4,10 @@ import App from './App.tsx';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 
+// Remove the inline app-shell once React takes over
+const shell = document.getElementById('app-shell');
+if (shell) shell.remove();
+
 // Apply saved theme before first paint (avoids flash)
 const _storedTheme = localStorage.getItem('ss-theme');
 if (_storedTheme === 'dark' || _storedTheme === 'light') {
