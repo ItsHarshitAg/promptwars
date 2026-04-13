@@ -15,25 +15,25 @@ vi.mock('../firebase/config', () => ({
 }));
 
 describe('LoginScreen', () => {
-  it('renders login text and button', () => {
+  it('renders brand name and sign-in button', () => {
     render(
       <BrowserRouter>
         <LoginScreen />
       </BrowserRouter>
     );
 
-    expect(screen.getByText('Welcome to SmartStadium')).toBeDefined();
+    expect(screen.getByText('SmartStadium')).toBeDefined();
     const button = screen.getByRole('button', { name: 'Sign in with Google' });
     expect(button).toBeDefined();
   });
 
-  it('renders the description text', () => {
+  it('renders the tagline description', () => {
     render(
       <BrowserRouter>
         <LoginScreen />
       </BrowserRouter>
     );
 
-    expect(screen.getByText('Please log in to continue')).toBeDefined();
+    expect(screen.getByText('Live crowd intelligence for Narendra Modi Stadium')).toBeDefined();
   });
 });

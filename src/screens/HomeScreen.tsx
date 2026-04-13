@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCrowd } from '../hooks/useCrowd';
 import { useZoneHistory } from '../hooks/useZoneHistory';
 import { Sparkline } from '../components/Sparkline';
+import { StatCard } from '../components/StatCard';
 import { AppNav } from '../components/AppNav';
 import { getZoneTypeLabel, densityStatus, alertAction } from '../utils/zoneHelpers';
 import type { Zone } from '../types';
@@ -74,43 +75,38 @@ export const HomeScreen = () => {
         {/* ── Stat cards ── */}
         {!loading && stats && (
           <div className="stat-grid">
-
-            <div style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Busiest Zone</div>
-              <div style={{ fontSize: 22, fontWeight: 500, color: stats.busiest.density > 0.8 ? '#C0392B' : 'var(--text-h)', marginBottom: 4 }}>{stats.busiest.name}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{stats.busiest.current} / {stats.busiest.capacity}</div>
-            </div>
-
-            <div style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Active Alerts</div>
-              <div style={{ fontSize: 22, fontWeight: 500, color: 'var(--text-h)', marginBottom: 4 }}>{stats.criticalCount}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>zones over 80%</div>
-            </div>
-
-            <div style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Best Restroom</div>
-              {stats.bestRestroom ? (
-                <>
-                  <div style={{ fontSize: 22, fontWeight: 500, color: '#27A148', marginBottom: 4 }}>{stats.bestRestroom.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)' }}>~{stats.bestRestroom.waitMinutes} min wait</div>
-                </>
-              ) : (
-                <div style={{ fontSize: 22, fontWeight: 500, color: 'var(--text-h)' }}>—</div>
-              )}
-            </div>
-
-            <div style={{ background: 'var(--surface-alt)', borderRadius: 8, padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Avg Wait Time</div>
-              <div style={{ fontSize: 22, fontWeight: 500, color: 'var(--text-h)', marginBottom: 4 }}>{stats.avgWait} min</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>across all zones</div>
-            </div>
-
+            <StatCard
+              label="Busiest Zone"
+              value={stats.busiest.name}
+              sub={`${stats.busiest.current} / ${stats.busiest.capacity}`}
+              valueColor={stats.busiest.density > 0.8 ? '#C0392B' : undefined}
+            />
+            <StatCard
+              label="Active Alerts"
+              value={stats.criticalCount}
+              sub="zones over 80%"
+            />
+            <StatCard
+              label="Best Restroom"
+              value={stats.bestRestroom ? stats.bestRestroom.name : '—'}
+              sub={stats.bestRestroom ? `~${stats.bestRestroom.waitMinutes} min wait` : 'No data'}
+              valueColor={stats.bestRestroom ? '#27A148' : undefined}
+            />
+            <StatCard
+              label="Avg Wait Time"
+              value={`${stats.avgWait} min`}
+              sub="across all zones"
+            />
           </div>
         )}
 
         {/* ── Alert strips ── */}
         {alertZones.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+          <section
+            aria-label="Active crowd alerts"
+            aria-live="assertive"
+            style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}
+          >
             {alertActions.map(({ zone, action }) => (
                 <div key={zone.id} className="alert-strip">
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
@@ -129,7 +125,7 @@ export const HomeScreen = () => {
                   </button>
                 </div>
             ))}
-          </div>
+          </section>
         )}
 
         {/* ── Live heatmap section ── */}
@@ -174,7 +170,14 @@ export const HomeScreen = () => {
                       <span style={{ ...pillStyle, fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 20 }}>{status}</span>
                     </div>
                     <div style={{ height: 5, borderRadius: 99, background: 'var(--border-color)', marginBottom: 8, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', borderRadius: 99, background: barColor, width: `${Math.min(zone.density * 100, 100)}%`, transition: 'width 0.5s ease' }} />
+                      <div
+                        role="progressbar"
+                        aria-valuenow={Math.round(zone.density * 100)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${zone.name} capacity: ${Math.round(zone.density * 100)}%`}
+                        style={{ height: '100%', borderRadius: 99, background: barColor, width: `${Math.min(zone.density * 100, 100)}%`, transition: 'width 0.5s ease' }}
+                      />
                     </div>
                     {zoneHistory[zone.id] && zoneHistory[zone.id].length >= 2 && (
                       <div style={{ marginBottom: 8 }}>

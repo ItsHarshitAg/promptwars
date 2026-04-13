@@ -29,4 +29,20 @@ describe('calculateQueueWaitTime', () => {
     const { density } = calculateQueueWaitTime(120, 100);
     expect(density).toBe(1.0);
   });
+
+  it('returns 0 density and wait when capacity is 0', () => {
+    const { density, waitMinutes } = calculateQueueWaitTime(50, 0);
+    expect(density).toBe(0);
+    expect(waitMinutes).toBe(0);
+  });
+
+  it('returns 0 density for negative current', () => {
+    const { density } = calculateQueueWaitTime(-10, 100);
+    expect(density).toBe(0);
+  });
+
+  it('returns high wait for density between 0.9 and 1.0', () => {
+    const { waitMinutes } = calculateQueueWaitTime(95, 100);
+    expect(waitMinutes).toBeGreaterThanOrEqual(30);
+  });
 });

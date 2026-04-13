@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAlerts } from '../hooks/useAlerts';
 import CloseIcon from '@mui/icons-material/Close';
 import WarningIcon from '@mui/icons-material/Warning';
